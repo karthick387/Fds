@@ -1,0 +1,23 @@
+.image-hover {
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  .image-hover:hover {
+    transition: transform 0.3s ease;
+  }
+  
+  .image-hover.show-message {
+    display: none;
+  }
+  
+  .message {
+    transition: opacity 0.3s ease;
+    opacity: 0;
+    text-align: center;
+  }
+  
+  .image-hover:hover + .message {
+    opacity: 1;
+  }
+  

@@ -1,0 +1,50 @@
+import { PrismaClient } from '@prisma/client'
+import type { NextApiRequest, NextApiResponse } from 'next';
+
+export default async function handler(
+  req: Request,
+  res: NextApiResponse
+) {
+  const foodRequest = await req.json();
+  const foodRequestStatus = foodRequest.data.foodRequestStatus;
+  const distributorStatus = foodRequest.data.distributorStatus;
+  const prisma = new PrismaClient()
+  const url = req.url;
+  let foodId: string | undefined | null;
+  if (url) {
+    const pathname = new URL(url).pathname;
+    const parts = pathname.split('/');
+    foodId = parts[parts.length - 1];
+
+    try {
+      const existingRecord = await prisma.foodRequest.findFirst({
+        where: { foodId: Number(foodId) },
+      });
+
+      const foodRequestId = existingRecord?.foodReqId;
+      console.log("foodRequestId:", foodRequestId);
+
+      if (!existingRecord) {
+        return Response.json({ error: "Record not found" }, { status: 404 });
+      }
+
+      const updatedFoodRequestRecord = await prisma.foodRequest.update({
+        where: { foodReqId: foodRequestId },
+        data: {
+            foodRequestStatus,
+            distributorStatus,
+        },
+      });
+
+      return Response.json({ updatedFoodRequestRecord }, { status: 200 });
+    } catch (error) {
+      console.error('Error updating food request record:', error);
+      return Response.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
+  } else {
+    return Response.json({ error: 'Invalid request' });
+  }
+
+}
+
+  export { handler as PUT };
